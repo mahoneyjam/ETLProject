@@ -63,3 +63,10 @@ CREATE TABLE final_housing_db AS
 	WHERE EXTRACT(YEAR FROM county_time_series.date_)>2016 AND county_time_series.per_sqft IS NOT NULL
 	GROUP BY County_CrossWalk.FIPS, County_CrossWalk.statefips, County_CrossWalk.CountyName, County_CrossWalk.StateName
 
+CREATE TABLE housing_price_table(
+    ID SERIAL PRIMARY KEY,
+    FIPS VARCHAR(5),
+    CountyName VARCHAR(255),
+    StateName VARCHAR(255),
+    per_sqft NUMERIC,
+)
