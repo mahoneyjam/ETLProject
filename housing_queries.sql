@@ -1,5 +1,5 @@
 --Data From: https://www.kaggle.com/zillow/zecon
-
+--Create Tables
 CREATE TABLE cities_crosswalk(
     Unique_City_ID VARCHAR(255) PRIMARY KEY ,
     City VARCHAR(255),
@@ -39,22 +39,11 @@ CREATE TABLE County_CrossWalk(
     CBSACode VARCHAR(5)
 )
 
-DROP TABLE IF EXISTS County_CrossWalk
-
-SELECT * FROM cities_crosswalk
-SELECT COUNT(date_) FROM county_time_series WHERE EXTRACT(YEAR FROM date_)=2016
-SELECT * FROM County_CrossWalk
-SELECT * FROM county_prices
-	
+--Rename Column
 ALTER TABLE county_time_series ALTER COLUMN RegionName TYPE VARCHAR (5)
 
-CREATE TABLE county_prices AS
-	SELECT County_CrossWalk.FIPS, county_time_series.per_sqft, county_time_series.bottom_tier,
-	county_time_series.middle_tier, county_time_series.top_tier, County_CrossWalk.CountyName, County_CrossWalk.StateName
-	FROM County_CrossWalk
-	INNER JOIN county_time_series 
-	ON county_time_series.RegionName=County_CrossWalk.FIPS
 
+--Create Housing Table via groupby transformation and average aggregation
 CREATE TABLE final_housing_db AS
 	SELECT County_CrossWalk.FIPS, County_CrossWalk.statefips, ROUND(AVG(county_time_series.per_sqft),2), County_CrossWalk.CountyName, County_CrossWalk.StateName
 	FROM county_time_series
@@ -62,11 +51,3 @@ CREATE TABLE final_housing_db AS
 	ON county_time_series.RegionName=County_CrossWalk.FIPS
 	WHERE EXTRACT(YEAR FROM county_time_series.date_)>2016 AND county_time_series.per_sqft IS NOT NULL
 	GROUP BY County_CrossWalk.FIPS, County_CrossWalk.statefips, County_CrossWalk.CountyName, County_CrossWalk.StateName
-
-CREATE TABLE housing_price_table(
-    ID SERIAL PRIMARY KEY,
-    FIPS VARCHAR(5),
-    CountyName VARCHAR(255),
-    StateName VARCHAR(255),
-    per_sqft NUMERIC,
-)
